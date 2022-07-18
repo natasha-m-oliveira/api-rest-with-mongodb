@@ -2,22 +2,49 @@ import livros from "../models/Livro.js";
 
 class LivroController {
   static listarLivros = (_, res) => {
-    livros.find((err, livros) => {
-      res.status(200).json(livros);
-    });
+    livros
+      .find()
+      .populate("autor")
+      .populate("editora")
+      .exec((err, livros) => {
+        if (err) {
+          res.status(500).send({ message: err.message });
+        } else {
+          res.status(200).json(livros);
+        }
+      });
+  };
+
+  static listarLivroPorEditora = (req, res) => {
+    const editora = req.query.editora;
+    livros
+      .find()
+      .populate("autor", "nome")
+      .populate("editora")
+      .exec((err, livros) => {
+        if (err) {
+          res.status(500).send({ message: err.message });
+        } else {
+          res.status(200).send(livros);
+        }
+      });
   };
 
   static listarLivroPorId = (req, res) => {
     const id = req.params.id;
-    livros.findById(id, (err, livros) => {
-      if (err) {
-        res
-          .status(400)
-          .send({ message: `${err.message} - Id do livro não localizado.` });
-      } else {
-        res.status(200).send(livros);
-      }
-    });
+    livros
+      .findById(id)
+      .populate("autor", "nome")
+      .populate("editora")
+      .exec((err, livros) => {
+        if (err) {
+          res
+            .status(400)
+            .send({ message: `${err.message} - Id do livro não localizado.` });
+        } else {
+          res.status(200).send(livros);
+        }
+      });
   };
 
   static cadastrarLivro = (req, res) => {
