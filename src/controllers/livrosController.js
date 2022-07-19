@@ -16,10 +16,16 @@ class LivroController {
   };
 
   static listarLivroPorEditora = (req, res) => {
-    const editora = req.query.editora;
+    // A pesquisa deverá ser feita com base no ID da editora, e não mais pelo nome
+    const editora = req.query.idEditora;
     livros
-      .find()
+      .find({editora: editora})
       .populate("autor", "nome")
+      // Desta forma os resultados que não obedecerem a condição ainda serão exibidos, mas com o valor null
+      /*.populate({
+        path: "editora",
+        match: {nome: editora}
+      })*/
       .populate("editora")
       .exec((err, livros) => {
         if (err) {
